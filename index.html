@@ -151,44 +151,49 @@
         }
 
         function displayResults(data) {
-            const resultDiv = document.getElementById('result');
-            if (data.length > 0) {
-                let tableHTML = `
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Row Number</th>
-                                <th>No. Of Leads</th>
-                                <th>Apollo URL</th>
-                                <th>Status</th>
-                                <th>Price</th>
-                                <th>File Name (Tag)</th>
-                                <th>Google Sheet</th>
-                                <th>Submitted At</th>
-                            </tr>
-                        </thead>
-                        <tbody>`;
-                data.forEach((item, index) => {
-                    tableHTML += `
-                        <tr>
-                            <td>${index + 1}</td>
-                            <td>${item["No. Of Leads (In Thousands) "]}</td>
-                            <td><a href="${item["Apollo URL"]}" target="_blank">View</a></td>
-                            <td>${item.Status}</td>
-                            <td>${item.Price}</td>
-                            <td>${item["Add a tag to identify the scrape"]}</td>
-                            <td><a href="${item["URL of the google Sheet"]}" target="_blank">Open Sheet</a></td>
-                            <td>${item["Submitted at"]}</td>
-                        </tr>`;
-                });
-                tableHTML += `
-                        </tbody>
-                    </table>`;
-                resultDiv.innerHTML = tableHTML;
-            } else {
-                resultDiv.innerHTML = 'No order found for this email.';
-            }
-        }
+    const resultDiv = document.getElementById('result');
+    if (data.length > 0) {
+        let tableHTML = `
+            <table>
+                <thead>
+                    <tr>
+                        <th>Row Number</th>
+                        <th>No. Of Leads</th>
+                        <th>Apollo URL</th>
+                        <th>Status</th>
+                        <th>Price</th>
+                        <th>File Name (Tag)</th>
+                        <th>Google Sheet</th>
+                        <th>Submitted At</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+
+        // Reverse the array to show last request first
+        const reversedData = data.reverse();
+
+        reversedData.forEach((item, index) => {
+            tableHTML += `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${item["No. Of Leads (In Thousands) "]}</td>
+                    <td><a href="${item["Apollo URL"]}" target="_blank">View</a></td>
+                    <td>${item.Status}</td>
+                    <td>${item.Price}</td>
+                    <td>${item["Add a tag to identify the scrape"]}</td>
+                    <td><a href="${item["URL of the google Sheet"]}" target="_blank">Open Sheet</a></td>
+                    <td>${item["Submitted at"]}</td>
+                </tr>`;
+        });
+        tableHTML += `
+                </tbody>
+            </table>`;
+        resultDiv.innerHTML = tableHTML;
+    } else {
+        resultDiv.innerHTML = 'No order found for this email.';
+    }
+}
+
 
         document.addEventListener('DOMContentLoaded', () => {
             const emailInput = document.getElementById('email');
