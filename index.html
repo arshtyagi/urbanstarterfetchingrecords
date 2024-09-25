@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Details</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #1d025b;
+            color: white;
+            padding: 20px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 3em;
+            font-weight: bolder;
+            text-align: center;
+        }
+
+        #result {
+            color: white;
+            margin-top: 20px;
+            text-align: center;
+            overflow-x: auto;
+            width: 100%;
+        }
+
+        #email {
+            color: black;
+            border: 1px solid #ccc;
+            padding: 12px;
+            width: 300px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            transition: border-color 0.3s;
+            font-size: 1.3em;
+            font-weight: bolder;
+        }
+
+        #email:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+
+        #submit-button {
+            padding: 12px 20px;
+            background-color: #003c95;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            font-size: 1.5em;
+            font-weight: bolder;
+        }
+
+        #submit-button:hover {
+            background-color: #00076d;
+        }
+
+        #submit-button:active {
+            transform: scale(0.95);
+        }
+
+        table {
+            margin-top: 20px;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid #444;
+            padding: 15px;
+            text-align: left;
+            font-size: 1.1em;
+            font-weight: bolder;
+            letter-spacing: 1px;
+        }
+
+        th {
+            background-color: #333;
+            font-weight: bolder;
+        }
+
+        tr:hover {
+            background-color: #02023f;
+        }
+
+        a {
+            color: #ffffff;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            #email {
+                width: 90%;
+            }
+            h1 {
+                font-size: 2.5em;
+            }
+        }
+    </style>
+    <script>
+        async function fetchOrderDetails() {
+            const email = document.getElementById('email').value;
+            const submitButton = document.getElementById('submit-button');
+            const resultDiv = document.getElementById('result');
+
+            submitButton.innerText = 'Finding...';
+            submitButton.disabled = true;
+            resultDiv.innerHTML = 'Fetching your order details...';
+
+            const fetchPromise = fetch(`https://n8n.urbanstarter.in/webhook/getOrderDetails?email=${encodeURIComponent(email)}`);
+            const timeoutPromise = new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('Timeout')), 5000)
+            );
+
+            try {
+                console.log(`Fetching order details for email: ${email}`);
+                const response = await Promise.race([fetchPromise, timeoutPromise]);
+
+                if (response.ok) {
+                    const data = await response.json();
+                    displayResults(data);
+                } else {
+                    resultDiv.innerHTML = 'No order found for this email.';
+                }
+            } catch (error) {
+                console.error('Error fetching order details:', error);
+                if (error.message === 'Timeout') {
+                    resultDiv.innerHTML = 'No email found in the database. Please try again.';
+                } else {
+                    resultDiv.innerHTML = 'An error occurred. Please try again.';
+                }
+            } finally {
+                submitButton.innerText = 'Submit';
+                submitButton.disabled = false;
+            }
+        }
+
+        function displayResults(data) {
+            const resultDiv = document.getElementById('result');
+            if (data.length > 0) {
+                let tableHTML = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Row Number</th>
+                                <th>No. Of Leads</th>
+                                <th>Apollo URL</th>
+                                <th>Status</th>
+                                <th>Price</th>
+                                <th>File Name (Tag)</th>
+                                <th>Google Sheet</th>
+                                <th>Submitted At</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+                data.forEach((item, index) => {
+                    tableHTML += `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td>${item["No. Of Leads (In Thousands) "]}</td>
+                            <td><a href="${item["Apollo URL"]}" target="_blank">View</a></td>
+                            <td>${item.Status}</td>
+                            <td>${item.Price}</td>
+                            <td>${item["Add a tag to identify the scrape"]}</td>
+                            <td><a href="${item["URL of the google Sheet"]}" target="_blank">Open Sheet</a></td>
+                            <td>${item["Submitted at"]}</td>
+                        </tr>`;
+                });
+                tableHTML += `
+                        </tbody>
+                    </table>`;
+                resultDiv.innerHTML = tableHTML;
+            } else {
+                resultDiv.innerHTML = 'No order found for this email.';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const emailInput = document.getElementById('email');
+            const submitButton = document.getElementById('submit-button');
+
+            emailInput.addEventListener('keypress', (event) => {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    fetchOrderDetails();
+                }
+            });
+
+            submitButton.disabled = false;
+        });
+    </script>
+</head>
+<body>
+    <h1>Get Your Order Details</h1>
+    <input type="email" id="email" placeholder="Enter your email" required>
+    <button id="submit-button" onclick="fetchOrderDetails()">Submit</button>
+    <div id="result"></div>
+</body>
+</html>
