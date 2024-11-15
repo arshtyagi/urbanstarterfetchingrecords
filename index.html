@@ -12,37 +12,40 @@
             justify-content: center;
             height: 100vh;
             margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #1d025b;
-            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #6a1b9a, #3f51b5);
+            color: #e0e0e0;
             padding: 20px;
         }
 
         h1 {
             margin-bottom: 20px;
-            font-size: 3em;
-            font-weight: bolder;
+            font-size: 2.5em;
+            font-weight: 600;
             text-align: center;
+            color: #ffffff;
         }
 
         #result {
-            color: white;
+            color: #e0e0e0;
             margin-top: 20px;
             text-align: center;
-            overflow-x: auto;
             width: 100%;
+            max-width: 100%;
         }
 
         #email {
-            color: black;
-            border: 1px solid #ccc;
+            color: #f5f5f5;
+            background-color: #333;
+            border: 1px solid #555;
             padding: 12px;
-            width: 300px;
+            width: 100%;
+            max-width: 400px;
             margin-bottom: 10px;
-            border-radius: 5px;
-            transition: border-color 0.3s;
-            font-size: 1.3em;
-            font-weight: bolder;
+            border-radius: 8px;
+            font-size: 1.2em;
+            font-weight: 500;
+            transition: border-color 0.3s ease;
         }
 
         #email:focus {
@@ -52,50 +55,70 @@
 
         #submit-button {
             padding: 12px 20px;
-            background-color: #003c95;
-            color: white;
+            background-color: #0066cc;
+            color: #ffffff;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
             transition: background-color 0.3s, transform 0.2s;
-            font-size: 1.5em;
-            font-weight: bolder;
+            font-size: 1.1em;
+            font-weight: 500;
+            width: 100%;
+            max-width: 400px;
         }
 
         #submit-button:hover {
-            background-color: #00076d;
+            background-color: #004c99;
         }
 
         #submit-button:active {
-            transform: scale(0.95);
+            transform: scale(0.98);
+        }
+
+        .table-container {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: auto;
+            margin-top: 20px;
         }
 
         table {
-            margin-top: 20px;
             border-collapse: collapse;
             width: 100%;
+            border: 1px solid #6a1b9a;
+            table-layout: fixed;
         }
 
         th, td {
-            border: 1px solid #444;
             padding: 15px;
             text-align: left;
-            font-size: 1.1em;
-            font-weight: bolder;
-            letter-spacing: 1px;
+            font-size: 1em;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            border: 1px solid #6a1b9a;
+            word-wrap: break-word;
         }
 
         th {
-            background-color: #333;
-            font-weight: bolder;
+            background-color: #444;
+            color: #ffffff;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+
+        .table-body {
+            max-height: 400px;
+            overflow-y: auto;
         }
 
         tr:hover {
-            background-color: #02023f;
+            background-color: #222;
         }
 
         a {
-            color: #ffffff;
+            color: #0099ff;
             text-decoration: none;
         }
 
@@ -108,10 +131,25 @@
                 width: 90%;
             }
             h1 {
-                font-size: 2.5em;
+                font-size: 2em;
+            }
+            #submit-button {
+                font-size: 1em;
+            }
+            table {
+                max-width: 100%;
             }
         }
     </style>
+</head>
+<body>
+    <h1>Get Your Order Details</h1>
+    <div style="width: 100%; max-width: 400px;">
+        <input type="email" id="email" placeholder="Enter Your Code Sent On Mail" required>
+        <button id="submit-button" onclick="fetchOrderDetails()">Submit</button>
+    </div>
+    <div id="result"></div>
+
     <script>
         async function fetchOrderDetails() {
             const email = document.getElementById('email').value;
@@ -128,7 +166,6 @@
             );
 
             try {
-                console.log(`Fetching order details for email: ${email}`);
                 const response = await Promise.race([fetchPromise, timeoutPromise]);
 
                 if (response.ok) {
@@ -138,7 +175,6 @@
                     resultDiv.innerHTML = 'No order found for this email.';
                 }
             } catch (error) {
-                console.error('Error fetching order details:', error);
                 if (error.message === 'Timeout') {
                     resultDiv.innerHTML = 'No email found in the database. Please try again.';
                 } else {
@@ -151,48 +187,48 @@
         }
 
         function displayResults(data) {
-    const resultDiv = document.getElementById('result');
-    if (data.length > 0) {
-        let tableHTML = `
-            <table>
-                <thead>
-                    <tr>
-                        <th>Row Number</th>
-                        <th>No. Of Leads</th>
-                        <th>Apollo URL</th>
-                        <th>Status</th>
-                        <th>Price</th>
-                        <th>File Name (Tag)</th>
-                        <th>Google Sheet</th>
-                        <th>Submitted At</th>
-                    </tr>
-                </thead>
-                <tbody>`;
+            const resultDiv = document.getElementById('result');
+            if (data.length > 0) {
+                let tableHTML = `
+                    <div class="table-container">
+                        <div class="table-body">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Row Number</th>
+                                        <th>No. Of Leads</th>
+                                        <th>Apollo URL</th>
+                                        <th>Status</th>
+                                        <th>Price</th>
+                                        <th>File Name (Tag)</th>
+                                        <th>Google Sheet</th>
+                                        <th>Submitted At</th>
+                                    </tr>
+                                </thead>
+                                <tbody>`;
 
-        // Reverse the array to show last request first
-        const reversedData = data.reverse();
+                const reversedData = data.reverse();
 
-        reversedData.forEach((item, index) => {
-            tableHTML += `
-                <tr>
-                    <td>${index + 1}</td>
-                    <td>${item["No. Of Leads (In Thousands) "]}</td>
-                    <td><a href="${item["Apollo URL"]}" target="_blank">View</a></td>
-                    <td>${item.Status}</td>
-                    <td>${item.Price}</td>
-                    <td>${item["Add a tag to identify the scrape"]}</td>
-                    <td><a href="${item["URL of the google Sheet"]}" target="_blank">Open Sheet</a></td>
-                    <td>${item["Submitted at"]}</td>
-                </tr>`;
-        });
-        tableHTML += `
-                </tbody>
-            </table>`;
-        resultDiv.innerHTML = tableHTML;
-    } else {
-        resultDiv.innerHTML = 'No order found for this email.';
-    }
-}
+                reversedData.forEach((item, index) => {
+                    tableHTML += `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td>${item["No. Of Leads (In Thousands) "]}</td>
+                            <td><a href="${item["Apollo URL"]}" target="_blank">View</a></td>
+                            <td>${item.Status}</td>
+                            <td>${item.Price}</td>
+                            <td>${item["Add a tag to identify the scrape"]}</td>
+                            <td><a href="${item["URL of the google Sheet"]}" target="_blank">Open Sheet</a></td>
+                            <td>${item["Submitted at"]}</td>
+                        </tr>`;
+                });
+                tableHTML += `</tbody></table></div></div>`;
+                resultDiv.innerHTML = tableHTML;
+            } else {
+                resultDiv.innerHTML = 'No order found for this email.';
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             const emailInput = document.getElementById('email');
             const submitButton = document.getElementById('submit-button');
@@ -207,11 +243,5 @@
             submitButton.disabled = false;
         });
     </script>
-</head>
-<body>
-    <h1>Get Your Order Details</h1>
-    <input type="email" id="email" placeholder="Enter Your Code Sent On Mail On your Order Sheet" required>
-    <button id="submit-button" onclick="fetchOrderDetails()">Submit</button>
-    <div id="result"></div>
 </body>
 </html>
